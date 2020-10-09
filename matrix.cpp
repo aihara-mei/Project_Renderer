@@ -117,6 +117,7 @@ Matrix& Matrix::operator=(const Matrix& n) {
 }
 
 Matrix Matrix::inverse() {
+	assert(row == column);
 	//Gauss-Jordan
 	Matrix result(row, column * 2);
 	for (int i = 0; i < row; i++) {
@@ -164,10 +165,10 @@ Matrix Matrix::inverse() {
 }
 
 Matrix Matrix::transpose() {
-	Matrix t(row, column);
+	Matrix t(column, row);
 	for (int i = 0; i < row; i++) {
 		for (int j = 0; j < column; j++) {
-			t[i][j] = data[j][i];
+			t[j][i] = data[i][j];
 		}
 	}
 	return t;

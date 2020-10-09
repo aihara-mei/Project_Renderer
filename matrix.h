@@ -24,4 +24,3 @@ private:
 	int column;
 	float** data;
 };
-
