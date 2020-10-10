@@ -39,6 +39,17 @@ Matrix::Matrix(const Matrix& n) {
 	}
 }
 
+Matrix::Matrix(Matrix&& n) {
+	this->data = n.data;
+	this->row = n.row;
+	this->column = n.column;
+
+	n.data = nullptr;
+	n.row = 0;
+	n.column = 0;
+}
+
+
 Matrix::~Matrix() {
 	if (data) {
 		for (int i = 0; i < row; i++) {
@@ -113,6 +124,27 @@ Matrix& Matrix::operator=(const Matrix& n) {
 			data[i][j] = n[i][j];
 		}
 	}
+	return *this;
+}
+
+Matrix& Matrix::operator=(Matrix&& n) {
+	if (this == &n) {
+		return *this;
+	}
+
+	if (this->data) {
+		for (int i = 0; i < row; i++) {
+			delete[] data[i];
+		}
+		delete[] data;
+	}
+
+	row = n.row;
+	column = n.column;
+	data = n.data;
+
+	std::cout << "make";
+	n.data = nullptr;
 	return *this;
 }
 

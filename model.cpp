@@ -1,5 +1,28 @@
 #include "model.h"
 
+Vec3 normalize(Vec3 v) {
+	float norm = std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+	Vec3 t = Vec3(v.x / norm, v.y / norm, v.z / norm);
+	return t;
+}
+
+Matrix vtom(Vec3 v) {
+	Matrix m(4, 1);
+	m[0][0] = v.x;
+	m[1][0] = v.y;
+	m[2][0] = v.z;
+	m[3][0] = 1;
+	return m;
+}
+
+Vec3 mtov(Matrix m) {
+	Vec3 v;
+	v.x = m[0][0] / m[3][0];
+	v.y = m[1][0] / m[3][0];
+	v.z = m[2][0] / m[3][0];
+	return v;
+}
+
 Model::Model(const char* filename):verts(), uvs(), norms(), faces() {
 	std::ifstream f;
 	f.open(filename, std::ifstream::in);
@@ -51,7 +74,6 @@ Model::Model(const char* filename):verts(), uvs(), norms(), faces() {
 	load_texture(filename, "_texture.tga");
 }
 
-
 int Model::n_faces() {
 	return faces.size();
 }
@@ -61,7 +83,8 @@ Vec3 Model::getVert(int i) {
 }
 
 Vec3 Model::getUV(int i) {
-	return uvs[i];
+	Vec3 v = uvs[i];
+	return Vec3(v.x * UVMap.get_width(), v.y * UVMap.get_height(), 0);
 }
 
 Vec3 Model::getNorm(int i) {
