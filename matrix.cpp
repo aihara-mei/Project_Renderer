@@ -20,7 +20,7 @@ Matrix::Matrix(int row_n, int column_n) {
 	}
 }
 
-Matrix::Matrix(const Matrix& n) {
+Matrix::Matrix(const Matrix& n) :row(0), column(0), data(nullptr) {
 	if (n.row <= 0 || n.column <= 0) {
 		row = column = 0;
 		data = nullptr;
@@ -39,16 +39,9 @@ Matrix::Matrix(const Matrix& n) {
 	}
 }
 
-Matrix::Matrix(Matrix&& n) {
-	this->data = n.data;
-	this->row = n.row;
-	this->column = n.column;
-
-	n.data = nullptr;
-	n.row = 0;
-	n.column = 0;
+Matrix::Matrix(Matrix&& n) :row(0), column(0), data(nullptr) {
+	*this = std::move(n);
 }
-
 
 Matrix::~Matrix() {
 	if (data) {
@@ -143,8 +136,10 @@ Matrix& Matrix::operator=(Matrix&& n) {
 	column = n.column;
 	data = n.data;
 
-	std::cout << "make";
 	n.data = nullptr;
+	n.column = 0;
+	n.row = 0;
+
 	return *this;
 }
 

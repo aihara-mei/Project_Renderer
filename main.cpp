@@ -10,25 +10,27 @@ const TGAColor red = TGAColor(255, 0, 0, 255);
 const TGAColor green = TGAColor(0, 255, 0, 255);
 const Vec3 light_dir(0, 0, -1);
 
-const Vec3 eye_pos(0, 0, 0);
-const Vec3 direction(1, 1, 3);
+const Vec3 direction(0, 0, 1);
+const Vec3 eye_pos(0, 0, 4);
 const Vec3 up(0, 1, 0);
+const View_frustum frust { -1, -30, -0.6, -0.6, 0.6, 0.6 };
 
 const int width = 800;
 const int height = 800;
 
 int main(int argc, char** argv) {
-	Model* model = new Model("./obj/african_head.obj");
+	Model* model = new Model("./obj/cube.obj");
 	TGAImage image(width, height, TGAImage::RGB);
 	Fragment fragment(model);
 	Transform transform;
+
 	Matrix view = transform.view(direction, eye_pos, up);
-	Matrix project = transform.projection(3);
+	Matrix project = transform.projection_R(frust);
 	Matrix viewport = transform.viewport(width, height);
 
 	float* zbuffer = new float[width * height];
 	for (int i = 0; i < width * height; i++) {
-		zbuffer[i] = -2;
+		zbuffer[i] = -std::numeric_limits<float>::max();
 	}
 
 	for (int i = 0; i < model->n_faces(); i++) {
@@ -40,6 +42,8 @@ int main(int argc, char** argv) {
 			Vec3 v = model->getVert(face[j * 3]);
 			Vec3 v_ = mtov(viewport * project * view * vtom(v));
 
+			if (v_.z > 0) std::cout << "E";
+
 			screen_coords[j] = v_;
 			world_coords[j] = v;
 			uvs[j] = model->getUV(face[j * 3 + 1]);
@@ -48,6 +52,7 @@ int main(int argc, char** argv) {
 		Vec3 nm = normalize(n);
 		float intensity = dot(nm, normalize(light_dir));
 
+		intensity = std::abs(intensity);
 		if (intensity > 0) {
 			fragment.triangle(screen_coords, uvs, zbuffer, image, intensity);
 		}

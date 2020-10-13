@@ -42,6 +42,7 @@ void Fragment::triangle(Vec3* verts, Vec3* uvs, float* zbuffer, TGAImage& image,
 	Vec3 v1 = verts[0], v2 = verts[1], v3 = verts[2];
 	Vec3 uv1 = uvs[0], uv2 = uvs[1], uv3 = uvs[2];
 
+
 	//bounding box
 	int x_max = std::max(v1.x, std::max(v2.x, v3.x));
 	int x_min = std::min(v1.x, std::min(v2.x, v3.x));
@@ -67,6 +68,7 @@ void Fragment::triangle(Vec3* verts, Vec3* uvs, float* zbuffer, TGAImage& image,
 				int v = alpha * uv1.y + beta * uv2.y + gamma * uv3.y;
 				TGAColor color = model->UVColor(Vec3(u, v, 0));
 				int idx = i * image.get_width() + j;
+
 				if (z > zbuffer[idx]) {
 					zbuffer[idx] = z;
 					image.set(i, j, TGAColor(color.r * intensity, color.g * intensity, color.b * intensity));
