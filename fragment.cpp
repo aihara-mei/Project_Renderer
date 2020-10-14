@@ -1,7 +1,5 @@
 #include "fragment.h"
 
-Fragment::Fragment(Model* _m) : model(_m) {};
-
 void Fragment::line(int x0, int y0, int x1, int y1, TGAImage& image, TGAColor color) {
 	// sort the x, y so that dx < 1
 	bool changed = false;
@@ -38,10 +36,9 @@ void Fragment::line(int x0, int y0, int x1, int y1, TGAImage& image, TGAColor co
 	}
 }
 
-void Fragment::triangle(Vec3* verts, Vec3* uvs, float* zbuffer, TGAImage& image, float intensity) {
+void Fragment::triangle(Vec3* verts, Vec3* uvs, std::vector<float>& zbuffer, TGAImage& image, float intensity, Model* model) {
 	Vec3 v1 = verts[0], v2 = verts[1], v3 = verts[2];
 	Vec3 uv1 = uvs[0], uv2 = uvs[1], uv3 = uvs[2];
-
 
 	//bounding box
 	int x_max = std::max(v1.x, std::max(v2.x, v3.x));

@@ -11,10 +11,8 @@ struct View_frustum {
 class Transform
 {
 public:
-	Matrix view(Vec3 look_direction, Vec3 eye_pos, Vec3 up);
-	Matrix viewport(int w, int h);
-	Matrix projection(float c);
-	Matrix projection_(float n, float f);
-	Matrix projection_R(float n, float f, float r, float l, float t, float b);
-	Matrix projection_R(const View_frustum& m);
+	static Matrix view(Vec3 look_direction, Vec3 eye_pos, Vec3 up);
+	static Matrix viewport(int w, int h);
+	static Matrix projection(float n, float f, float r, float l, float t, float b);
+	static Matrix projection(const View_frustum& m);
 };

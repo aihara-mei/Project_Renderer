@@ -24,13 +24,7 @@ Matrix Transform::viewport(int w, int h) {
 	return m;
 }
 
-Matrix Transform::projection(float c) {
-	Matrix m = Matrix::eye(4);
-	m[3][2] = (-1.) / c;
-	return m;
-}
-
-Matrix Transform::projection_R(float n, float f, float r, float l, float t, float b) {
+Matrix Transform::projection(float n, float f, float r, float l, float t, float b) {
 	Matrix m = Matrix(4, 4);
 	m[0][0] = 2. * n / (r - l);
 	m[0][2] = (r + l) / (l - r);
@@ -45,7 +39,7 @@ Matrix Transform::projection_R(float n, float f, float r, float l, float t, floa
 	return m;
 }
 
-Matrix Transform::projection_R(const View_frustum& frt) {
+Matrix Transform::projection(const View_frustum& frt) {
 	float n, f, r, l, b, t;
 	n = frt.near;
 	f = frt.far;
