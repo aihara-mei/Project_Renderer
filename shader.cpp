@@ -10,7 +10,7 @@ void Shader::shade(TGAImage& image, Model* model) {
 	const Vec3 eye_pos(2, 2, 2);
 	const Vec3 up(0, 1, 0);
 	// camera frustum
-	const View_frustum frust{ -1, -30, -0.6, -0.6, 0.6, 0.6 }; //view in -z
+	const View_frustum frust{ -1, -30, -0.4, -0.4, 0.4, 0.4 }; //view in -z
 
 	// viewport size
 	const int width = image.get_width();
@@ -31,9 +31,12 @@ void Shader::shade(TGAImage& image, Model* model) {
 		Vec3 screen_coords[3];
 		Vec3 world_coords[3];
 		Vec3 uvs[3];
+		float zs[3];
 		for (int j = 0; j < 3; j++) {
 			Vec3 v = model->getVert(face[j * 3]);
-			Vec3 v_ = mtov(viewport * project * view * vtom(v));
+			Matrix m = project * view * vtom(v);
+			zs[j] = m[3][0];
+			Vec3 v_ = mtov(viewport * m);
 
 			screen_coords[j] = v_;
 			world_coords[j] = v;
@@ -45,7 +48,7 @@ void Shader::shade(TGAImage& image, Model* model) {
 
 		intensity = std::abs(intensity);
 		if (intensity > 0) {
-			Fragment::triangle(screen_coords, uvs, zbuffer, image, intensity, model);
+			Fragment::triangle(screen_coords, uvs, zs, zbuffer, image, intensity, model);
 		}
 	}
 

@@ -16,4 +16,5 @@ int main(int argc, char** argv) {
 	Shader shader;
 	shader.shade(image, model.get());
 	return 0;
+
 }

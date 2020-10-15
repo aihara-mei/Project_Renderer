@@ -36,9 +36,10 @@ void Fragment::line(int x0, int y0, int x1, int y1, TGAImage& image, TGAColor co
 	}
 }
 
-void Fragment::triangle(Vec3* verts, Vec3* uvs, std::vector<float>& zbuffer, TGAImage& image, float intensity, Model* model) {
+void Fragment::triangle(Vec3* verts, Vec3* uvs, float* zs, std::vector<float>& zbuffer, TGAImage& image, float intensity, Model* model) {
 	Vec3 v1 = verts[0], v2 = verts[1], v3 = verts[2];
 	Vec3 uv1 = uvs[0], uv2 = uvs[1], uv3 = uvs[2];
+	float z1 = zs[0], z2 = zs[1], z3 = zs[2];
 
 	//bounding box
 	int x_max = std::max(v1.x, std::max(v2.x, v3.x));
@@ -60,14 +61,14 @@ void Fragment::triangle(Vec3* verts, Vec3* uvs, std::vector<float>& zbuffer, TGA
 			float S2 = dot(cross(PA, AC), S);
 			float alpha = S1 / SS, beta = S2 / SS, gamma = 1.f - alpha - beta;
 			if (alpha >= 0 && beta >= 0 && gamma >= 0) {
-				float z = alpha * v1.z + beta * v2.z + gamma * v3.z;
-				int u = alpha * uv1.x + beta * uv2.x + gamma * uv3.x;
-				int v = alpha * uv1.y + beta * uv2.y + gamma * uv3.y;
+				float zt = 1 / (alpha / z1 + beta / z2 + gamma / z3);
+				int u = zt * (alpha * uv1.x / z1 + beta * uv2.x / z2 + gamma * uv3.x / z3);
+				int v = zt * (alpha * uv1.y / z1 + beta * uv2.y / z2 + gamma * uv3.y / z3);
 				TGAColor color = model->UVColor(Vec3(u, v, 0));
 				int idx = i * image.get_width() + j;
 
-				if (z > zbuffer[idx]) {
-					zbuffer[idx] = z;
+				if (zt > zbuffer[idx]) {
+					zbuffer[idx] = zt;
 					image.set(i, j, TGAColor(color.r * intensity, color.g * intensity, color.b * intensity));
 				}
 			}
