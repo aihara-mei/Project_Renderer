@@ -1,6 +1,11 @@
 #include "matrix.h"
 #include <cassert>
 
+Matrix::Matrix() {
+	row = 0, column = 0;
+	data = nullptr;
+}
+
 Matrix::Matrix(int row_n, int column_n) {
 	if (row_n <= 0 || column_n <= 0) {
 		row = column = 0;
@@ -58,7 +63,7 @@ float* Matrix::operator[](const int i) const {
 	return data[i];
 }
 
-Matrix Matrix::operator+(const Matrix& n) {
+Matrix Matrix::operator+(const Matrix& n) const {
 	assert(column == n.column && row == n.row);
 	Matrix t(column, row);
 	for (int i = 0; i < row; i++) {
@@ -69,7 +74,7 @@ Matrix Matrix::operator+(const Matrix& n) {
 	return t;
 }
 
-Matrix Matrix::operator-(const Matrix& n) {
+Matrix Matrix::operator-(const Matrix& n) const {
 	assert(column == n.column && row == n.row);
 	Matrix t(column, row);
 	for (int i = 0; i < row; i++) {
@@ -80,7 +85,7 @@ Matrix Matrix::operator-(const Matrix& n) {
 	return t;
 }
 
-Matrix Matrix::operator*(const Matrix& n) {
+Matrix Matrix::operator*(const Matrix& n) const {
 	assert(column == n.row);
 	Matrix t(row, n.column);
 	for (int i = 0; i < row; i++) {
@@ -92,6 +97,19 @@ Matrix Matrix::operator*(const Matrix& n) {
 		}
 	}
 	return t;
+}
+
+float Matrix::operator^(const Matrix& n) const {
+	assert(row == n.row);
+	assert(column == n.column);
+
+	float res = 0;
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < column; j++) {
+			res += data[i][j] * n[i][j];
+		}
+	}
+	return res;
 }
 
 Matrix& Matrix::operator=(const Matrix& n) {

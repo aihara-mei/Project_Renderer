@@ -9,12 +9,15 @@ class Matrix
 public:
 	Matrix inverse();
 	Matrix transpose();
-	Matrix operator*(const Matrix& n);
-	Matrix operator+(const Matrix& n);
-	Matrix operator-(const Matrix& n);
+	Matrix operator*(const Matrix& n) const;
+	Matrix operator+(const Matrix& n) const;
+	Matrix operator-(const Matrix& n) const;
+	float operator^(const Matrix& n) const;
 	Matrix& operator=(const Matrix& n);
 	Matrix& operator=(Matrix&& n);
 	float* operator[](const int i) const;
+
+	Matrix();
 	Matrix(int row_n, int column_n);
 	Matrix(const Matrix& n);
 	Matrix(Matrix&& n);
