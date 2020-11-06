@@ -1,4 +1,5 @@
 #pragma once
+#include <tuple>;
 #include "matrix.h"
 #include "model.h"
 
@@ -24,10 +25,10 @@ struct Plane {
 
 // camera position
 static const Vec3 direction{ 1, 1, 1 };
-static const Vec3 eye_pos{ 2, 2, 2 };
+static const Vec3 eye_pos{ 1.1, 1.1, 1.1 };
 static const Vec3 up{ 0, 1, 0 };
 // camera frustum
-static const View_frustum frust{ -1, -30, -1, -1, 1, 1 }; //view in -z
+static const View_frustum frust{ -1, -30, -0.3, -0.3, 0.3, 0.3 }; //view in -z
 // camera clipping plane
 static const Plane top{ Vec3{ 0, -frust.near/frust.t, 1 }, 0 };
 static const Plane bottom{ Vec3{ 0, -frust.near/frust.b, 1 }, 0 };
@@ -47,10 +48,14 @@ public:
 	static Matrix projection(float n, float f, float r, float l, float t, float b);
 	static Matrix projection(const View_frustum& m);
 	static bool cull(const Matrix& m);
-	static Matrix lerp(const Matrix& v1, const Matrix& v2, float t);
-	static void clipByPlane(std::vector<Matrix>& m, const Plane& plane);
-	static std::vector<Matrix> vertices_process(std::vector<Vec3>& verts);
+	static Matrix lerp_matrix(const Matrix& v1, const Matrix& v2, double t);
+	static Vec3 lerp_vec3(const Vec3& v1, const Vec3& v2, float t);
+	static void clipByPlane_(std::vector<Matrix>& m, const Plane& plane);
+	static void clipByPlane(std::vector<Matrix>& m, const Plane& plane, std::vector<Vec3>& uvs);
+	static double get_intersect_ratio(float d1, float d2);
+	static std::vector<Matrix> vertices_process(std::vector<Vec3>& verts, std::vector<Vec3>& uvs, std::vector<float>& zs);
 	static std::vector<Vec3> viewport_process(std::vector<Matrix>& verts, const Matrix& viewport);
+	static void pack_triangles(int nums, std::vector<std::tuple<int, int, int>>& triangles_idx);
 };
 
 // MVP matrix

@@ -10,6 +10,7 @@ public:
 	Matrix inverse();
 	Matrix transpose();
 	Matrix operator*(const Matrix& n) const;
+	Matrix operator*(const float t) const;
 	Matrix operator+(const Matrix& n) const;
 	Matrix operator-(const Matrix& n) const;
 	float operator^(const Matrix& n) const;
@@ -25,6 +26,7 @@ public:
 
 	static Matrix eye(int row_n);
 	friend std::ostream& operator<<(std::ostream& cout, const Matrix& n);
+	friend Matrix operator*(const float t, const Matrix& n);
 private:
 	int row;
 	int column;

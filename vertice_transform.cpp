@@ -1,4 +1,6 @@
 #include "vertice_transform.h"
+#include "cassert"
+#include <queue>;
 
 Matrix Transform::view(Vec3 look_direction, Vec3 eye_pos, Vec3 up) {
 	Vec3 z = normalize(look_direction);
@@ -75,23 +77,74 @@ bool Transform::cull(const Matrix& m) {
 	return false;
 }
 
-Matrix Transform::lerp(const Matrix& v1, const Matrix& v2, float t) {
-	return Matrix(3, 3);
+Matrix Transform::lerp_matrix(const Matrix& v1, const Matrix& v2, double t) {
+	return v1 * (1 - t) + v2 * t;
 }
 
-void Transform::clipByPlane(std::vector<Matrix>& verts, const Plane& plane) {
-	std::vector<Matrix> clip;
+Vec3 Transform::lerp_vec3(const Vec3& v1, const Vec3& v2, float t) {
+	return v1 * (1 - t) + v2 * t;
+}
 
-	for (auto& vert : verts) {
-		float d_ = vert ^ plane.m;
-		if (d_ < 0)
-			clip.push_back(vert);
+double Transform::get_intersect_ratio(float d1, float d2) {
+	return std::fabs(d1) / (std::fabs(d1) + std::fabs(d2));
+}
+
+void Transform::clipByPlane_(std::vector<Matrix>& verts, const Plane& plane) {
+	std::vector<Matrix> clip;
+	int vert_num = verts.size();
+
+	for (int i = 0; i < vert_num; i++) {
+		Matrix cur_v = verts[i];
+		float d1 = cur_v ^ plane.m;
+		if (d1 < 0)
+			clip.push_back(cur_v);
 	}
 
-	clip.swap(verts);
+	if (clip.size() < 3)
+		clip.clear();
+
+	verts.swap(clip);
 }
 
-std::vector<Matrix> Transform::vertices_process(std::vector<Vec3>& verts) {
+void Transform::clipByPlane(std::vector<Matrix>& verts, const Plane& plane, std::vector<Vec3>& uvs) {
+	std::vector<Matrix> clip;
+	std::vector<Vec3> clip_uvs;
+
+	int i;
+	int vert_num = verts.size();
+	int post, cur;
+
+	for (i = 0; i < vert_num; i++) {
+		cur = i;
+		post = (i + 1) % vert_num;
+		Matrix cur_v = verts[cur];
+		Matrix post_v = verts[post];
+
+		Vec3 cur_uv = uvs[cur];
+		Vec3 post_uv = uvs[post];
+
+		float d1 = cur_v ^ plane.m;
+		float d2 = post_v ^ plane.m;
+
+		if (d1 * d2 < 0) {
+			double t = get_intersect_ratio(d1, d2);
+			Matrix intsec = lerp_matrix(cur_v, post_v, t);
+			Vec3 intsec_uv = lerp_vec3(cur_uv, post_uv, t);
+			
+			clip.push_back(intsec);
+			clip_uvs.push_back(intsec_uv);
+		}
+		
+		if (d2 < 0) {
+			clip.push_back(post_v);
+			clip_uvs.push_back(post_uv);
+		}
+	}
+	clip.swap(verts);
+	clip_uvs.swap(uvs);
+}
+
+std::vector<Matrix> Transform::vertices_process(std::vector<Vec3>& verts, std::vector<Vec3>& uvs, std::vector<float>& zs) {
 	std::vector<Matrix> WRD_coords; WRD_coords.reserve(3);
 	std::vector<Matrix> NDC_coords; NDC_coords.reserve(3);
 
@@ -102,20 +155,19 @@ std::vector<Matrix> Transform::vertices_process(std::vector<Vec3>& verts) {
 		WRD_coords.emplace_back(m_view);
 	}
 
-	clipByPlane(WRD_coords, top);
-	clipByPlane(WRD_coords, bottom);
-	clipByPlane(WRD_coords, left);
-	clipByPlane(WRD_coords, right);
-	clipByPlane(WRD_coords, near);
-	clipByPlane(WRD_coords, far);
+	clipByPlane(WRD_coords, top, uvs);
+	clipByPlane(WRD_coords, bottom, uvs);
+	clipByPlane(WRD_coords, left, uvs);
+	clipByPlane(WRD_coords, right, uvs);
+	clipByPlane(WRD_coords, near, uvs);
+	clipByPlane(WRD_coords, far, uvs);
 
 	for (auto &WRD_coord: WRD_coords) {
 		Matrix m_proj = project_matrix * WRD_coord;
 		NDC_coords.emplace_back(m_proj);
+		zs.push_back(m_proj[3][0]);
 	}
 
-	if (NDC_coords.size() < 3)
-		NDC_coords.clear();
 	return NDC_coords;
 }
 
@@ -129,4 +181,19 @@ std::vector<Vec3> Transform::viewport_process(std::vector<Matrix>& verts, const 
 	}
 
 	return scr;
+}
+
+void Transform::pack_triangles(int nums, std::vector<std::tuple<int, int, int>>& triangles_idx) {
+	std::queue<int> q;
+	for (int i=0; i<nums; i++)
+		q.push(i);
+	while (q.size() > 2) {
+		auto first = q.front();
+		q.pop();
+		auto second = q.front();
+		q.pop();
+		q.push(first);
+		auto third = q.front();
+		triangles_idx.push_back({ first, second, third });
+	}
 }

@@ -65,7 +65,7 @@ float* Matrix::operator[](const int i) const {
 
 Matrix Matrix::operator+(const Matrix& n) const {
 	assert(column == n.column && row == n.row);
-	Matrix t(column, row);
+	Matrix t(row, column);
 	for (int i = 0; i < row; i++) {
 		for (int j = 0; j < column; j++) {
 			t[i][j] = data[i][j] + n[i][j];
@@ -76,7 +76,7 @@ Matrix Matrix::operator+(const Matrix& n) const {
 
 Matrix Matrix::operator-(const Matrix& n) const {
 	assert(column == n.column && row == n.row);
-	Matrix t(column, row);
+	Matrix t(row, column);
 	for (int i = 0; i < row; i++) {
 		for (int j = 0; j < column; j++) {
 			t[i][j] = data[i][j] - n[i][j];
@@ -97,6 +97,17 @@ Matrix Matrix::operator*(const Matrix& n) const {
 		}
 	}
 	return t;
+}
+
+Matrix Matrix::operator*(const float t) const {
+	Matrix res(row, column);
+
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < column; j++) {
+			res[i][j] = data[i][j] * t;
+		}
+	}
+	return res;
 }
 
 float Matrix::operator^(const Matrix& n) const {
@@ -235,4 +246,14 @@ std::ostream& operator<<(std::ostream& cout, const Matrix& n) {
 		cout << std::endl;
 	}
 	return cout;
+}
+
+Matrix operator*(const float t, const Matrix& n) {
+	Matrix res(n.row, n.column);
+	for (int i = 0; i < n.row; i++) {
+		for (int j = 0; j < n.column; j++) {
+			res[i][j] = t * n[i][j];
+		}
+	}
+	return res;
 }

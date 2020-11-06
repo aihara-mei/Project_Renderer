@@ -36,7 +36,7 @@ void Fragment::line(int x0, int y0, int x1, int y1, TGAImage& image, TGAColor co
 	}
 }
 
-void Fragment::triangle(std::vector<Vec3>& verts, TGAImage& image) {
+void Fragment::triangle(Vec3* verts, TGAImage& image) {
 	Vec3 v1 = verts[0], v2 = verts[1], v3 = verts[2];
 	line(v1.x, v1.y, v2.x, v2.y, image, TGAColor(255, 255, 255));
 	line(v2.x, v2.y, v3.x, v3.y, image, TGAColor(255, 255, 255));
@@ -74,7 +74,10 @@ void Fragment::triangle(Vec3* verts, Vec3* uvs, float* zs, std::vector<float>& z
 				TGAColor color = model->UVColor(Vec3(u, v, 0));
 				int idx = i * image.get_width() + j;
 
-				if (zt > zbuffer[idx]) {
+				if (idx >= image.get_height() * image.get_width())
+					std::cout << "i:" << i << " j:" << j << std::endl;
+
+				if (idx < image.get_height() * image.get_width() && zt > zbuffer[idx]) {
 					zbuffer[idx] = zt;
 					image.set(i, j, TGAColor(color.r * intensity, color.g * intensity, color.b * intensity));
 				}

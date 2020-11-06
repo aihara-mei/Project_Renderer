@@ -11,6 +11,9 @@ struct Vec3 {
 	Vec3(): x(0), y(0), z(0) {}
 	Vec3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
 	float& operator[](const int i) { return i == 0 ? x : (i == 1 ? y : z); }
+	Vec3 operator*(const float t) const { return Vec3(x*t, y*t, z*t); }
+	Vec3 operator+(const Vec3& v2) { return Vec3(x + v2.x, y + v2.y, z + v2.z); }
+	Vec3 operator-(const Vec3& v2) { return Vec3(x - v2.x, y - v2.y, z - v2.z); }
 	float x, y, z;
 };
 

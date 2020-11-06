@@ -28,12 +28,20 @@ void Shader::shade(TGAImage& image, Model* model) {
 			uvs.push_back(model->getUV(face[j * 3 + 1]));
 		}
 
-		std::vector<Matrix> trans_verts = Transform::vertices_process(verts);
+		std::vector<Matrix> trans_verts = Transform::vertices_process(verts, uvs, zs);
+		std::vector<Vec3> verts_list = Transform::viewport_process(trans_verts, viewport);
+		std::vector<std::tuple<int, int, int>> triangles_idx;
+		Transform::pack_triangles(verts_list.size(), triangles_idx);
 
-		std::vector<Vec3> triangle = Transform::viewport_process(trans_verts, viewport);
+		for (auto &idx: triangles_idx) {
+			auto [a, b, c] = idx;
+			Vec3 triangle[3] = { verts_list[a], verts_list[b], verts_list[c] };
+			Vec3 uv[3] = { uvs[a], uvs[b], uvs[c] };
+			float z[3] = { zs[a], zs[b], zs[c] };
 
-		if (!triangle.empty())
-			Fragment::triangle(triangle, image);
+			Fragment::triangle(triangle, uv, z, zbuffer, image, 1, model);
+			//Fragment::triangle(triangle, image);
+		}
 	}
 
 	image.flip_vertically();
