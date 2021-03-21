@@ -59,7 +59,7 @@ Matrix::~Matrix() {
 }
 
 float* Matrix::operator[](const int i) const {
-	assert(data && i>=0 && i<row);
+	assert(data && i >= 0 && i < row);
 	return data[i];
 }
 
@@ -186,7 +186,7 @@ Matrix Matrix::inverse() {
 	for (int i = 0; i < row; i++) {
 		// choosing partial pivot
 		int maxRow = i;
-		for (int j = i+1; j < row; j++) {
+		for (int j = i + 1; j < row; j++) {
 			if (abs(result[j][i]) > abs(result[maxRow][i])) {
 				maxRow = j;
 			}
@@ -199,7 +199,7 @@ Matrix Matrix::inverse() {
 		for (int j = 0; j < row * 2; j++) {
 			result[i][j] = result[i][j] / coeff;
 		}
-		
+
 		//eliminating row
 		for (int j = 0; j < row; j++) {
 			if (i != j) {
@@ -256,4 +256,91 @@ Matrix operator*(const float t, const Matrix& n) {
 		}
 	}
 	return res;
+}
+
+// vec2
+Vec2 operator*(double t, const Vec2& v) {
+	return Vec2(v.x * t, v.y * t);
+}
+
+Vec2 operator/(const Vec2& v, double t) {
+	return Vec2(v.x / t, v.y / t);
+}
+
+// vec3
+Vec3 normalize(const Vec3& v) {
+	float norm = std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+	Vec3 t = Vec3(v.x / norm, v.y / norm, v.z / norm);
+	return t;
+}
+
+Matrix vtom(const Vec3& v) {
+	Matrix m(4, 1);
+	m[0][0] = v.x;
+	m[1][0] = v.y;
+	m[2][0] = v.z;
+	m[3][0] = 1;
+	return m;
+}
+
+Vec3 mtov3(const Matrix& m) {
+	Vec3 v;
+	v.x = m[0][0] / m[3][0];
+	v.y = m[1][0] / m[3][0];
+	v.z = m[2][0] / m[3][0];
+	return v;
+}
+
+void clamp_v3(Vec3& v, float c) {
+	v.x = v.x > c ? c : v.x;
+	v.y = v.y > c ? c : v.y;
+	v.z = v.z > c ? c : v.z;
+}
+
+Vec3 operator*(double t, const Vec3& v) {
+	return Vec3(v.x * t, v.y * t, v.z * t);
+}
+
+Vec3 operator-(const Vec3& u, const Vec3& v)
+{
+	return Vec3(u.x - v.x, u.y - v.y, u.z - v.z);
+}
+
+Vec3 operator*(const Vec3& u, const Vec3& v)
+{
+	return Vec3(u.x * v.x, u.y * v.y, u.z * v.z);
+}
+
+// vec4
+Matrix vtom(const Vec4& v) {
+	Matrix m(4, 1);
+	m[0][0] = v.x;
+	m[1][0] = v.y;
+	m[2][0] = v.z;
+	m[3][0] = v.w;
+	return m;
+}
+
+Vec4 mtov4(const Matrix& m) {
+	Vec4 v;
+	v.x = m[0][0];
+	v.y = m[1][0];
+	v.z = m[2][0];
+	v.w = m[3][0];
+	return v;
+}
+
+Vec2 vec2_lerp(Vec2& start, Vec2& end, float alpha)
+{
+	return start + (end - start) * alpha;
+}
+
+Vec3 vec3_lerp(Vec3& start, Vec3& end, float alpha)
+{
+	return start + (end - start) * alpha;
+}
+
+Vec4 vec4_lerp(Vec4& start, Vec4& end, float alpha)
+{
+	return start + (end - start) * alpha;
 }
